@@ -1,0 +1,17 @@
+std_msgs/Header header
+int32 pitch
+int32 roll
+int32 yaw
+int32 vgx
+int32 vgy
+int32 vgz
+int32 templ
+int32 temph
+int32 tof
+int32 h
+int32 bat
+int32 baro
+int32 time
+int32 agx
+int32 agy
+int32 agz

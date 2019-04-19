@@ -1,0 +1,5 @@
+# Arbitrary Tello query:
+string cmd
+int32[] args
+---
+string response
