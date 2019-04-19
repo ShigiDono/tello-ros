@@ -1,0 +1,13 @@
+<launch>
+  <arg name="world_path" default="$(find tello_gazebo)/worlds/simple.world" />
+  <arg name="urdf_path" default="$(find tello_description)/urdf/tello.urdf" />
+  <!--param name="robot_description" command="$(find xacro)/xacro $(arg urdf_path)" /-->
+  <include file="$(find tello_description)/launch/generate_urdf.launch"/>
+  <!-- We resume the logic in empty_world.launch, changing only the name of the world to be launched -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find tello_gazebo)/worlds/simple.world"/>
+    <!-- more default parameters can be changed here -->
+  </include>
+  <node pkg="tello_gazebo" type="inject_entity.py" name="tello_gazebo" args="robot_description 0 0 1 0"/>
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" output="screen" args="$(arg urdf_path)"/>
+</launch>
