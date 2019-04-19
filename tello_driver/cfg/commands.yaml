@@ -1,0 +1,140 @@
+command:
+        name: command
+        timeout:
+                timeout: 1
+                retries: 3
+takeoff:
+        name: takeoff
+        timeout:
+                timeout: 10
+land:
+        name: land
+        timeout:
+                timeout: 10
+streamon:
+        name: streamon
+        timeout:
+                timeout: 1
+                retries: 3
+streamoff:
+        name: streamoff
+        timeout:
+                timeout: 1
+                retries: 3
+emergency:
+        name: emergency
+        timeout:
+                timeout: 3
+up:
+        name: up
+        timeout:
+                timeout: 10
+        arguments:
+                - name: distance
+                  minimum: 20
+                  maximum: 500
+down:
+        name: down
+        timeout:
+                timeout: 10
+        arguments:
+                - name: distance
+                  minimum: 20
+                  maximum: 500
+left:
+        name: left
+        timeout:
+                timeout: 10
+        arguments:
+                - name: distance
+                  minimum: 20
+                  maximum: 500
+right:
+        name: right
+        timeout:
+                timeout: 10
+        arguments:
+                - name: distance
+                  minimum: 20
+                  maximum: 500
+forward:
+        name: forward
+        timeout:
+                timeout: 10
+        arguments:
+                - name: distance
+                  minimum: 20
+                  maximum: 500
+back:
+        name: back
+        timeout:
+                timeout: 10
+        arguments:
+                - name: distance
+                  minimum: 20
+                  maximum: 500
+cw:
+        name: cw
+        timeout:
+                timeout: 10
+        arguments:
+                - name: degrees
+                  minimum: 1
+                  maximum: 3600
+ccw:
+        name: ccw
+        timeout:
+                timeout: 10
+        arguments:
+                - name: degrees
+                  minimum: 1
+                  maximum: 3600
+flip:
+        name: flip
+        timeout:
+                timeout: 10
+        arguments:
+                - name: direction
+
+go:
+        name: go
+        timeout:
+                timeout: 10
+        arguments:
+                - name: x
+                  minimum: 20
+                  maximum: 500
+                - name: y
+                  minimum: 20
+                  maximum: 500
+                - name: z
+                  minimum: 20
+                  maximum: 500
+                - name: speed
+                  minimum: 10
+                  maximum: 100
+speed:
+        name: speed
+        timeout:
+                timeout: 1
+        arguments:
+                - name: speed
+                  minimum: 10
+                  maximum: 100
+rc:
+        name: rc
+        timeout:
+                timeout: 0
+        arguments:
+                - name: roll
+                  minimum: -100
+                  maximum: 100
+                - name: pitch
+                  minimum: -100
+                  maximum: 100
+                - name: throttle
+                  minimum: -100
+                  maximum: 100
+                - name: yaw
+                  minimum: -100
+                  maximum: 100
