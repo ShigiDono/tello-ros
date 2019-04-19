@@ -1,0 +1,6 @@
+<launch>
+
+  <!-- Filepath for the robot description file -->
+  <param name="robot_description"
+   command="xacro --inorder '$(find tello_description)/urdf/tello.urdf.xacro' suffix:='_' topic_ns:='tello'" />
+</launch>

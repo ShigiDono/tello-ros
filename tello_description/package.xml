@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package format="2">
+
+  <name>tello_description</name>
+  <version>0.1.0</version>
+  <description>Tello description files</description>
+
+  <maintainer email="shigidono@gmail.com">Petr Khrapchenkov</maintainer>
+  <license>BSD</license>
+
+  <url type="repository">https://github.com/shigidono/tello-ros.git</url>
+  <url type="bugtracker">https://github.com/shigidono/tello-ros/issues</url>
+
+  <author>Clyde McQueen</author>
+  <author>Peter Mullen</author>`
+  <author>Petr Khrapchenkov</author>`
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+</package>
