@@ -1,4 +1,5 @@
 <launch>
 	<param name="command_description" value="$(find tello_driver)/cfg/commands.yaml"/>
+	<param name="camera_info" value="$(find tello_driver)/cfg/camera_info.txt"/>
 	<node name="tello_driver" pkg="tello_driver" type="tello_driver.py" output="screen" />
 </launch>

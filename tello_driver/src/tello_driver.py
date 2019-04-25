@@ -9,9 +9,10 @@ import cv2
 from cv_bridge import CvBridge, CvBridgeError
 
 from geometry_msgs.msg import Twist
-from sensor_msgs.msg import Image, Joy
-from std_msgs.msg import Empty
+from sensor_msgs.msg import Image, Joy, CameraInfo, CompressedImage
+from std_msgs.msg import Empty, Header
 from tello_msgs.srv import TelloCommand
+from tello_msgs.msg import TelloTelemetry
 import numpy
 from h264decoder.h264decoder import H264Decoder
 
@@ -43,9 +44,9 @@ class TelloArgument(object):
         self.minimum = minimum
         self.maximum = maximum
     def check(self, value):
-        if self.minimum != None and value < self.minimum:
+        if self.minimum != None and float(value) < self.minimum:
             return False
-        if self.maximum != None and value > self.maximum:
+        if self.maximum != None and float(value) > self.maximum:
             return False
         return True
 
@@ -97,6 +98,7 @@ class TelloDriver(object):
         rospy.init_node('tello_driver_node', anonymous=False)
         self.available_commands = None #{
 
+        # TODO move reading part to roslaunch file 
         command_description_file = rospy.get_param("command_description", "")
 
         if len(command_description_file):
@@ -116,6 +118,24 @@ class TelloDriver(object):
         self.command_timeout = 0.5
 
         self.video_enabled = rospy.get_param("video_enabled", True)
+        camera_info_file = rospy.get_param("camera_info", "")
+        with open(camera_info_file) as f:
+            camera_info = [[float(x) for x in line.strip().split()] for line in f]
+            height, width = camera_info[0]
+            fx, fy = camera_info[1]
+            cx, cy = camera_info[2]
+            self.camera_info = CameraInfo()
+            self.camera_info.header = Header()
+            self.camera_info.header.frame_id = "camera_frame"
+            self.camera_info.height = height
+            self.camera_info.width = width
+            self.camera_info.distortion_model = "plumb_bob"
+
+            self.camera_info.D = camera_info[3]
+            self.camera_info.K = [fx, 0, cx, 0, fy, cy, 0, 0, 1]
+            self.camera_info.P = [fx, 0, cx, 0, 0, fy, cy, 0, 0, 0, 1, 0]# mb last is fx
+            self.camera_info.R = [1, 0, 0, 0, 1, 0, 0, 0, 1]
+            rospy.logerr("%s" % self.camera_info)
 
         self.video_port = 11111
         self.telemetry_port = 8890
@@ -141,6 +161,7 @@ class TelloDriver(object):
 
 
         rospy.Subscriber('joy', Joy, self._cmd_joy_callback)
+        self.telemetry_pub = rospy.Publisher("telemetry", TelloTelemetry, queue_size=10)
         # rospy.Subscriber('takeoff', Empty, self.takeoff_callback)
         # rospy.Subscriber('land', Empty, self.land_callback)
         # rospy.Subscriber('flip', Flip, self.flip_callback)
@@ -148,7 +169,9 @@ class TelloDriver(object):
         self.process_command("command", False)
         
         if self.video_enabled and self.process_command("streamon", False) == "ok":
-            self.image_pub = rospy.Publisher('camera/image_raw', Image, queue_size=10)
+            self.image_pub = rospy.Publisher('camera/image/image_raw', Image, queue_size=10)
+            self.image_com_pub = rospy.Publisher('camera/image/compressed', CompressedImage, queue_size=10)
+            self.camera_info_pub = rospy.Publisher('camera/camera_info', CameraInfo, queue_size=10)
             self.video_decoder = H264Decoder()
             self.video_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             # self.video_socket.settimeout(3)
@@ -188,6 +211,13 @@ class TelloDriver(object):
                 telemetry, ip = self.telemetry_socket.recvfrom(2048)
                 rospy.loginfo(telemetry)
                 items = {item.split(":")[0]: float(item.split(":")[1]) for item in telemetry.strip()[:-1].split(";")}
+                data = [float(item.split(":")[1]) for item in telemetry.strip()[:-1].split(";")]
+
+
+                msg = TelloTelemetry()
+                msg.header.stamp = rospy.Time.now()
+                msg.data = data
+                self.telemetry_pub.publish(msg)
 
                 # self.response_queue.put(telemetry.strip())
             except socket.error as error:
@@ -206,7 +236,15 @@ class TelloDriver(object):
                         # send frames
                         try:
                             cv_image = frame
+                            
                             self.image_pub.publish(self.bridge.cv2_to_imgmsg(cv_image, "rgb8"))
+                            msg = CompressedImage()
+                            msg.header.stamp = rospy.Time.now()
+                            msg.format = "jpeg"
+                            msg.data = numpy.array(cv2.imencode('.jpg', cv2.cvtColor(cv_image, cv2.COLOR_BGR2RGB))[1]).tostring()
+                            self.image_com_pub.publish(msg)
+                            self.camera_info.header.stamp = rospy.Time.now()
+                            self.camera_info_pub.publish(self.camera_info)
 
                         except CvBridgeError as e:
                             rospy.logerr(e)
